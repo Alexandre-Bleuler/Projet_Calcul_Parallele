@@ -37,5 +37,5 @@ class NCorps():
             term = P[index].position - P[i].position
             Si = (num / den) * term          
             S += Si
-            
+        S = S / P[index].masse
         return S       
