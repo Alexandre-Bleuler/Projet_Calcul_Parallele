@@ -174,8 +174,7 @@ def generate_galaxy(n_stars,
         star_mass = random.uniform(star_mass_range[0], star_mass_range[1])
         
         # Génération de l'orbite stable
-        pos, vel = generate_stable_orbit(black_hole_mass, star_mass, 
-                                         min_orbital_radius, max_orbital_radius)
+        pos, vel = generate_stable_orbit(black_hole_mass, star_mass, min_orbital_radius, max_orbital_radius)
         
         # Couleur de l'étoile
         color = generate_star_color(star_mass)
