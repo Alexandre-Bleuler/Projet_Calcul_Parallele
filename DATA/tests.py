@@ -6,6 +6,7 @@ from Class import Body, NBodies
 import time
 import sys
 import os
+import matplotlib.pyplot as plt
 sys.path.append(os.getcwd())
 
 
@@ -73,7 +74,7 @@ def run_headless(ncorps, delta_t, steps=10):
     Args:
         ncorps (NBodies): The simulation object to update.
         delta_t (float): Time step to pass to ncorps.update.
-        steps (int): Number of update steps to execute.
+        steps (int): Represents the number of iterations that the simulation performs during the test phase
 
     Returns:
         tuple: (elapsed_seconds, fps) where fps is the measured 'frames per second".
@@ -93,9 +94,12 @@ if __name__ == "__main__":
     generate_galaxies(Liste, output_dir=output_dir)
 
     
-    repeats = 3
-    steps = 10
-    delta_t = 1
+    repeats = 3 # number of times a series of tests will be repeated
+    steps = 10 # represents the number of iterations that the simulation performs during the test phase
+    delta_t = 0.1
+    stars_list = []
+    avg_fps_list = []
+
 
     print("\nStarting")
     for n_stars in Liste:
@@ -111,8 +115,15 @@ if __name__ == "__main__":
             fps_list.append(fps)
             print(f"Run {r}/{repeats}: {steps} steps -> {elapsed:.4f} s, {fps:.2f} FPS")
         avg_fps = sum(fps_list) / len(fps_list) if fps_list else 0.0
+        stars_list.append(n_stars)
+        avg_fps_list.append(avg_fps)
         print(f"Average FPS for {n_stars} stars: {avg_fps:.2f}\n")
 
     print("\n End: The numbers of stars increase the iteration time.")
     
-
+    plt.figure()
+    plt.plot(stars_list, avg_fps_list)
+    plt.xlabel("Nombre d'étoiles")
+    plt.ylabel("FPS moyen")
+    plt.title("Evolution des perfomances")
+    plt.show()
