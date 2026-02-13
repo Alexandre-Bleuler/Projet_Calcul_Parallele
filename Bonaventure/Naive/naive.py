@@ -33,8 +33,8 @@ class NCorps():
             if i == index:
                 continue
             num = G * P[i].masse * P[index].masse
-            den = (np.linalg.norm(P[index].position - P[i].position))**3 + 1e-6 # to avoid divisions by 0 
-            term = P[index].position - P[i].position
+            den = (np.linalg.norm(-P[index].position + P[i].position))**3 + 1e-6 # to avoid divisions by 0 
+            term = -P[index].position + P[i].position
             Si = (num / den) * term          
             S += Si
         S = S / P[index].masse
