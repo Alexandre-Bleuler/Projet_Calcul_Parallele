@@ -6,8 +6,8 @@ import visualizer3d_vbo
 import time
 
 
-N_ETOILES = 50
-DT = 0.001
+N_ETOILES = 200
+DT = 0.01
 
 masses, positions, velocities, colors = galaxy_generator.generate_galaxy(n_stars=N_ETOILES)
 
@@ -35,11 +35,18 @@ def update(dummy):
     frame += 1
     
     iteration_start_time = time.time()
+    accelerations = []
+
     for i in range(len(corps_list)):
-        force = ncorps.force_attraction(i)
-        if corps_list[i].masse > 0:
-            corps_list[i].update(DT, force / corps_list[i].masse)
+        a = ncorps.force_attraction(i)
+        accelerations.append(a)
+
     
+    for i in range(len(corps_list)):
+        corps_list[i].update(DT, accelerations[i])
+    
+    
+
     
     new_points = np.array([c.position for c in corps_list], dtype=np.float32)
     iteration_time = time.time() - iteration_start_time
