@@ -8,53 +8,31 @@ import numba
 DT = 0.01
 G = 1.560339e-13
 
-def compute_acce(positions, masses):
-    N = len(masses)
-    acc = np.zeros((N, 3), dtype=np.float64)
+@numba.njit(parallel = True)
+def compute_acce_numba(positions, masses):
+    N = positions.shape[0]
+    acc = np.zeros((N,3))
+    for i in numba.prange(N): #parallel range
+        ax = 0.0
+        ay = 0.0
+        az = 0.0
+        for j in range(N):
+            if i != j :
+                
+                dx = positions[j, 0] - positions[i, 0]  
+                dy = positions[j, 1] - positions[i, 1]
+                dz = positions[j, 2] - positions[i, 2]
 
-    for i in range(N):
-        
-        diff = positions - positions[i]        
-        dist_sq = np.sum(diff**2, axis =1) 
+                dist_sq = dx*dx + dy*dy + dz*dz + 1e-8 # here dist_sq is a scalar, then I cannot use a mask
+                inv_dist3 = 1.0 / (dist_sq * np.sqrt(dist_sq))
 
-        mask = dist_sq < 10E-8
-        dist_sq[mask]
-        dist_sq[i] = 1.0
-
-        inv_dist3 = 1.0 / (dist_sq * np.sqrt(dist_sq))
-        inv_dist3[i] = 0.0
-        acc[i] = np.sum(G * masses[:, None] * diff * inv_dist3[:, None], axis=0)
+                ax += G * masses[j]*dx*inv_dist3
+                ay += G * masses[j]*dy*inv_dist3
+                az += G * masses[j]*dz*inv_dist3
+        acc[i,0] = ax
+        acc[i,1] = ay
+        acc[i,2] = az
     return acc
-
-
-@numba.njit(parallel=True)
-def compute_acce_numba(positions : np.float64, masses : np.float64)-> np.float64:
-    n : numba.int64 = 0
-    diff = np.zeros(len(masses), 1)
-    acc = np.zeros(len(masses), 3, np.int64)
-    for i in numba.prange(acc.shape[0]):
-        for k in range(len(positions)):
-            diff[k] = positions[k] - positions[i] 
-        dist_sq = 0
-        for l in range(len(diff)):
-            dist_sq += diff[l]**2 
-        mask = dist_sq < 10E-8
-        dist_sq[mask]
-        inv_dist3 = 1.0 / (dist_sq * np.sqrt(dist_sq))
-        inv_dist3[i] = 0.0
-
-        #dist_sq = np.sum(diff**2, axis =1)
-        for j in range(acc.shape[1]):
-            acc[i,j] = 0
-            for m in range(j):
-                acc[i,j] += G * masses[m] * (positions[m]-positions[i]) * inv_dist3
-            for m in range(j,acc.shape[1] ):
-                acc[i,j] += G * masses[m] * (positions[m]-positions[i]) * inv_dist3
-            break
-    return acc
-
-
-
 def update():
     global positions, velocities
 
@@ -68,7 +46,7 @@ def update():
 
 if __name__ == '__main__':
     
-    N_ETOILES = 200
+    N_ETOILES = 2000
     masses, positions, velocities, colors = galaxy_generator.generate_galaxy(n_stars=N_ETOILES)
 
     masses = np.array(masses, dtype=np.float64)            
