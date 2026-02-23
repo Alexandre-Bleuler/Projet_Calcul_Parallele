@@ -12,10 +12,7 @@ def compute_acce(positions, masses):
 
     for i in range(N):
         diff = positions - positions[i]        
-        dist_sq = np.sum(diff**2, axis =1) 
-
-        mask = dist_sq < 10E-8 
-        dist_sq[mask]
+        dist_sq = np.sum(diff**2, axis =1) + 1e-6 
         dist_sq[i] = 1.0
         inv_dist3 = 1.0 / (dist_sq * np.sqrt(dist_sq))
         inv_dist3[i] = 0.0
