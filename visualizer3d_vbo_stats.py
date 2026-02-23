@@ -53,7 +53,7 @@ class Visualizer3D:
         self.colors = np.array(colors, dtype=np.float32)
         self.luminosities = np.array(luminosities, dtype=np.float32)
         self.bounds = bounds
-        
+
         # Paramètres de la fenêtre
         self.window_width = 1024
         self.window_height = 768
@@ -339,12 +339,10 @@ class Visualizer3D:
         # Marquer les VBO pour mise à jour au prochain rendu
         self.vbo_needs_update = True
     
-    def run(self, updater=None, dt = 0.001 ):
+    def run(self, updater=None, dt = 0.001, number_of_updates=100 ):
         """
-        Lance la boucle principale de visualisation.
-        
-        Cette méthode bloque jusqu'à ce que l'utilisateur ferme la fenêtre
-        ou appuie sur ESC.
+        Lance la boucle principale de visualisation et calcule des statistiques.
+        Cela retourne ule temps d'update moyen. 
         """
         self.running = True
         
@@ -353,10 +351,14 @@ class Visualizer3D:
         print("  - Molette de la souris : zoom")
         print("  - ESC ou fermeture de fenêtre : quitter")
 
+        update_counter = 0
+        time_list=[0 for i in range(number_of_updates)]
+        fps_list=[0 for i in range(number_of_updates)]
         t1 = sdl2.SDL_GetTicks()
+
         #dt = 0.01  # Intervalle de temps fictif pour la mise à jour        
         # Boucle principale
-        while self.running:
+        while self.running and update_counter<number_of_update:
             # Gestion des événements
             self.running = self._handle_events()
             
@@ -366,15 +368,22 @@ class Visualizer3D:
             
             # Mise à jour via la fonction updater si fournie
             if updater is not None:
+                time_begin= time.time()
                 self.update_points(updater(dt))
-            
+                elapsed_update_time=time.time()-time_begin
+                time_list[update_counter]=elapsed_update_time
+
+                update_counter+=1
             # Petite pause pour ne pas surcharger le CPU
             #sdl2.SDL_Delay(10)
             t2 = sdl2.SDL_GetTicks()
-            print(f"Frame time: {t2 - t1} ms", end='\r')
+
             t1 = t2
         # Nettoyage
         self.cleanup()
+        average_time = sum(time_list)/number_of_updates
+    
+        return average_time
     
     def cleanup(self):
         """
