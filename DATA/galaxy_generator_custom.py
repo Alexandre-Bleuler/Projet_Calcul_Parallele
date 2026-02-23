@@ -197,39 +197,35 @@ def generate_galaxy(n_stars,
         
         print(f"Galaxie générée avec {n_stars} étoiles et sauvegardée dans '{output_file}'")
         print(f"Masse du trou noir central: {black_hole_mass:.2e} masses solaires")
-    
+        print(f"\nStatistiques de la galaxie:")
+        print(f"  - Nombre total d'objets: {len(masses)}")
+        print(f"  - Nombre d'étoiles: {n_stars}")
+        print(f"  - Masse totale: {sum(masses):.2e} masses solaires")
+        print(f"  - Masse moyenne des étoiles: {np.mean(masses[1:]):.2f} masses solaires")
+        print(f"  - Distance min/max: {min(np.linalg.norm(p) for p in positions[1:]):.4f} / {max(np.linalg.norm(p) for p in positions[1:]):.4f} années-lumière")
     return masses, positions, velocities, colors
 
 
-def main():
+def generate_data(number_of_bodies_array):
     """
     Fonction principale pour tester le générateur de galaxie.
     """
     import sys
     
     # Paramètres par défaut
-    n_stars = 100
-    output_file = "data/galaxy_100"
-    
-    # Lecture des arguments de ligne de commande
-    if len(sys.argv) > 1:
-        n_stars = int(sys.argv[1])
-    if len(sys.argv) > 2:
-        output_file = sys.argv[2]
-    
-    # Génération de la galaxie
-    masses, positions, velocities, colors = generate_galaxy(
-        n_stars=n_stars,
-        output_file=output_file
-    )
-    
-    print(f"\nStatistiques de la galaxie:")
-    print(f"  - Nombre total d'objets: {len(masses)}")
-    print(f"  - Nombre d'étoiles: {n_stars}")
-    print(f"  - Masse totale: {sum(masses):.2e} masses solaires")
-    print(f"  - Masse moyenne des étoiles: {np.mean(masses[1:]):.2f} masses solaires")
-    print(f"  - Distance min/max: {min(np.linalg.norm(p) for p in positions[1:]):.4f} / {max(np.linalg.norm(p) for p in positions[1:]):.4f} années-lumière")
+
+    for nbodies in number_of_bodies_array : 
+  
+        output_file = f"galaxies_data/galaxy_{nbodies}"
+        
+        # Génération de la galaxie
+        masses, positions, velocities, colors = generate_galaxy(
+            n_stars=nbodies,
+            output_file=output_file
+        )
 
 
 if __name__ == "__main__":
-    main()
+
+    number_of_bodies_array = np.arange(50,1050,50)
+    generate_data(number_of_bodies_array)
