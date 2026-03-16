@@ -45,13 +45,14 @@ def update():
 
 if __name__ == '__main__':
     
-    N_ETOILES = 200
+    N_ETOILES = 10000
     masses, positions, velocities, colors = galaxy_generator.generate_galaxy(n_stars=N_ETOILES)
 
     masses = np.array(masses, dtype=np.float64)            
     positions = np.array(positions, dtype=np.float64)          
     velocities = np.array(velocities, dtype=np.float64) 
     acc = compute_acce_numba(positions, masses)  # acceleration calculation 
+
 
 
     colors_array = np.array(colors, dtype=np.float32)          

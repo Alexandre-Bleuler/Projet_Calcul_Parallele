@@ -8,16 +8,16 @@ DT = 0.01
 G = 1.560339e-13
 
 
-GRID_RESOLUTION_X = 50
-GRID_RESOLUTION_Y = 50
+GRID_RESOLUTION_X = 20
+GRID_RESOLUTION_Y = 20
 GRID_RESOLUTION_Z = 5
 
-@numba.njit
+@numba.njit(parallel=True)
 def compute_bounds(positions):
     n = positions.shape[0]
     min_vals = positions[0].copy()
     max_vals = positions[0].copy()
-    for i in range(1, n):
+    for i in numba.prange(1, n):
         for j in range(3):
             if positions[i, j] < min_vals[j]:
                 min_vals[j] = positions[i, j]
@@ -28,7 +28,7 @@ def compute_bounds(positions):
     max_vals += margin
     return min_vals, max_vals
 
-@numba.njit
+@numba.njit(parallel=True)
 def build_grid(positions, masses, bounds):
     """
     Builds a regular grid with resolution (nx, ny, nz).
@@ -60,7 +60,7 @@ def build_grid(positions, masses, bounds):
     cell_j = np.zeros(N, dtype=np.int32)
     cell_k = np.zeros(N, dtype=np.int32)
 
-    for idx in range(N):
+    for idx in numba.prange(N):
         pos = positions[idx]
 
         i = int((pos[0] - min_bounds[0]) / dx)
@@ -85,7 +85,7 @@ def build_grid(positions, masses, bounds):
 
     return cell_particles, cell_counts, cell_i, cell_j, cell_k, cell_size, min_bounds
 
-@numba.njit
+@numba.njit(parallel=True)
 def compute_cell_properties(cell_particles, cell_counts, positions, masses):
     """
     Calculates for each cell: total mass and center of mass.
@@ -95,7 +95,7 @@ def compute_cell_properties(cell_particles, cell_counts, positions, masses):
     cell_mass = np.zeros((nx, ny, nz), dtype=np.float64)
     cell_cm = np.zeros((nx, ny, nz, 3), dtype=np.float64)
 
-    for i in range(nx):
+    for i in numba.prange(nx):
         for j in range(ny):
             for k in range(nz):
                 count = cell_counts[i, j, k]
@@ -124,8 +124,6 @@ def compute_cell_properties(cell_particles, cell_counts, positions, masses):
 def compute_acce_grid(positions, masses):
     N = positions.shape[0]
     acc = np.zeros((N, 3))
-
-    
     bounds = compute_bounds(positions)
     cell_particles, cell_counts, cell_i, cell_j, cell_k, cell_size, min_bounds = build_grid(
         positions, masses, bounds
@@ -133,7 +131,7 @@ def compute_acce_grid(positions, masses):
 
     
     cell_mass, cell_cm = compute_cell_properties(cell_particles, cell_counts, positions, masses)
-
+    
     nx, ny, nz, _ = cell_particles.shape
 
     
@@ -191,7 +189,6 @@ def compute_acce_grid(positions, masses):
         acc[i, 0] = ax
         acc[i, 1] = ay
         acc[i, 2] = az
-
     return acc
 
 def update():
@@ -203,14 +200,13 @@ def update():
     new_acc = compute_acce_grid(positions, masses)
     velocities += 0.5 * (acc + new_acc) * DT
     acc = new_acc
-
     print("Compute time:", time.time() - start)
     return positions.astype(np.float32)
 
 if __name__ == "__main__":
-    N_ETOILES = 3000
+    N_ETOILES = 10000
     masses, positions, velocities, colors = galaxy_generator.generate_galaxy(
-        n_stars=N_ETOILES
+        n_stars = N_ETOILES
     )
 
     masses = np.array(masses, dtype=np.float64)
