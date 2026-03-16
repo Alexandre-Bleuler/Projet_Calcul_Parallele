@@ -54,6 +54,7 @@ if __name__ == '__main__':
     acc = compute_acce_numba(positions, masses)  # acceleration calculation 
 
 
+
     colors_array = np.array(colors, dtype=np.float32)          
     luminosities = np.ones(len(masses), dtype=np.float32)
 
