@@ -45,7 +45,7 @@ def update():
 
 if __name__ == '__main__':
     
-    N_ETOILES = 10000
+    N_ETOILES = 200
     masses, positions, velocities, colors = galaxy_generator.generate_galaxy(n_stars=N_ETOILES)
 
     masses = np.array(masses, dtype=np.float64)            

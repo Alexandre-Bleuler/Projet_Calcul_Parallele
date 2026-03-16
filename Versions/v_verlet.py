@@ -115,7 +115,6 @@ def update_stats(delta_t, positions, velocities, masses, acceleration):
     acceleration = new_acc
     elapsed_update_time=time.time()-time_begin
     return elapsed_update_time, positions.astype(np.float32)
-
 if __name__ == '__main__':
     
     DT = 0.01
@@ -129,6 +128,7 @@ if __name__ == '__main__':
     colors_array = np.array(colors, dtype=np.float32)          
     luminosities = np.ones(len(masses), dtype=np.float32)
     
+
 
     if len(positions) > 0:
         max_coord = np.max(np.abs(positions)) * 2.0
