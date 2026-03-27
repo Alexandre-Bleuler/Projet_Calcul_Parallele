@@ -122,6 +122,7 @@ Enter the number associated with the version you want to use:"""
             case 5:
                 nx ,ny, nz=20, 20, 1
                 acceleration=v_precond.initialize_acc(positions, masses, nx ,ny, nz)
+                acceleration[0] = 0.0 # for avoid black hole movement
                 updater=lambda delta_t : v_precond.update_stats(delta_t, positions, velocities, masses, acceleration, nx, ny, nz)
                 average_time[i,1]=visualizer.run_stats(updater, delta_t,  number_of_updates)
             case _:

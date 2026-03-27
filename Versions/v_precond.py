@@ -293,8 +293,11 @@ def update():
     start = time.time()
 
     positions += velocities * DT + 0.5 * acc * DT**2
+    positions[0] = 0.0 # for avoid black hole movement
     new_acc = compute_acce_grid(positions, masses, GRID_RESOLUTION_X, GRID_RESOLUTION_Y, GRID_RESOLUTION_Z)
+    new_acc[0] = 0.0 # for avoid black hole movement
     velocities += 0.5 * (acc + new_acc) * DT
+    velocities[0] = 0.0 # for avoid black hole movement
     acc = new_acc
     print("Compute time:", time.time() - start)
     return positions.astype(np.float32)
@@ -337,8 +340,11 @@ def update_stats(delta_t, positions, velocities, masses, acceleration, nx, ny, n
 
     time_begin= time.time()
     positions += velocities * delta_t + 0.5 * acceleration * delta_t**2
+    positions[0] = 0.0 # for avoid black hole movement
     new_acc = compute_acce_grid(positions, masses, nx, ny, nz)
+    new_acc[0] = 0.0 # for avoid black hole movement
     velocities += 0.5 * (acceleration + new_acc) * delta_t
+    velocities[0] = 0.0 # for avoid black hole movement
     acceleration = new_acc
     elapsed_update_time=time.time()-time_begin
     return elapsed_update_time, positions.astype(np.float32)
@@ -346,7 +352,7 @@ def update_stats(delta_t, positions, velocities, masses, acceleration, nx, ny, n
 if __name__ == "__main__":
 
 
-    DT = 0.001
+    DT = 0.01
     N_ETOILES = 1000
     GRID_RESOLUTION_X = 20
     GRID_RESOLUTION_Y = 20
@@ -361,7 +367,7 @@ if __name__ == "__main__":
     velocities = np.array(velocities, dtype=np.float64)
 
     acc = compute_acce_grid(positions, masses, GRID_RESOLUTION_X, GRID_RESOLUTION_Y, GRID_RESOLUTION_Z)
-
+    acc[0] = 0.0 # for avoid black hole movement
     colors_array = np.array(colors, dtype=np.float32)
     luminosities = np.ones(len(masses), dtype=np.float32)
 
